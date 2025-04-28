@@ -101,9 +101,10 @@ const Home: React.FC = () => {
 
       <Summary transactions={filteredTransactions} />
 
-      <div className="card mb-6 overflow-hidden">
+      {/* Tab Navigation */}
+      <div className="mb-6 bg-white rounded-lg shadow overflow-hidden">
         <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
+          <nav className="flex">
             <button
               className={`py-4 px-6 font-medium text-sm border-b-2 ${
                 activeTab === "transactions"
@@ -153,7 +154,7 @@ const Home: React.FC = () => {
         </div>
 
         {activeTab === "transactions" && (
-          <div>
+          <>
             <div className="p-4 bg-gray-50 border-b border-gray-100">
               <Filter
                 categories={categories}
@@ -171,20 +172,32 @@ const Home: React.FC = () => {
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
+          </>
+        )}
+
+        {activeTab === "charts" && (
+          <div className="p-6 bg-white">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-2">
+                Analytics
+              </h3>
+              <p className="text-sm text-gray-500">
+                Visual representation of your financial data
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-lg overflow-hidden">
+                <ExpensesChart transactions={filteredTransactions} />
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-lg overflow-hidden">
+                <MonthlyChart transactions={transactions} />
+              </div>
+            </div>
           </div>
         )}
       </div>
-
-      {activeTab === "charts" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="card">
-            <ExpensesChart transactions={filteredTransactions} />
-          </div>
-          <div className="card">
-            <MonthlyChart transactions={transactions} />
-          </div>
-        </div>
-      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
