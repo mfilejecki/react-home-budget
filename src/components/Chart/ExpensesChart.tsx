@@ -44,11 +44,20 @@ const ExpensesChart: React.FC<ExpensesChartProps> = ({ transactions }) => {
       categoryMap.set(expense.category, currentAmount + expense.amount);
     });
 
-    // Convert to array for chart data
-    return Array.from(categoryMap.entries()).map(([name, value]) => ({
-      name,
-      value,
-    }));
+    // Convert to array for chart data and sort by amount (highest first)
+    return Array.from(categoryMap.entries())
+      .map(([name, value]) => ({
+        name,
+        value,
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [transactions]);
+
+  // Calculate total expenses
+  const totalExpenses = useMemo(() => {
+    return transactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
   }, [transactions]);
 
   if (expensesByCategory.length === 0) {
@@ -59,11 +68,29 @@ const ExpensesChart: React.FC<ExpensesChartProps> = ({ transactions }) => {
     );
   }
 
+  const renderCustomizedLabel = ({
+    name,
+    percent,
+  }: {
+    name: string;
+    percent: number;
+  }) => {
+    return percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : "";
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-4">
-      <h3 className="text-lg font-medium text-gray-800 mb-4">
-        Expenses by Category
-      </h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium text-gray-800">
+          Expenses by Category
+        </h3>
+        <div className="text-sm text-gray-500">
+          Total:{" "}
+          <span className="font-medium text-red-600">
+            {formatCurrency(totalExpenses)}
+          </span>
+        </div>
+      </div>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -76,9 +103,7 @@ const ExpensesChart: React.FC<ExpensesChartProps> = ({ transactions }) => {
               fill="#8884d8"
               dataKey="value"
               nameKey="name"
-              label={({ name, percent }) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
-              }
+              label={renderCustomizedLabel}
             >
               {expensesByCategory.map((entry, index) => (
                 <Cell
@@ -87,8 +112,19 @@ const ExpensesChart: React.FC<ExpensesChartProps> = ({ transactions }) => {
                 />
               ))}
             </Pie>
-            <Tooltip formatter={(value) => formatCurrency(value as number)} />
-            <Legend />
+            <Tooltip
+              formatter={(value) => formatCurrency(value as number)}
+              labelFormatter={(name) => `Category: ${name}`}
+            />
+            <Legend
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
+              formatter={(value, entry, index) => {
+                const item = expensesByCategory[index];
+                return `${value}: ${formatCurrency(item.value)}`;
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
