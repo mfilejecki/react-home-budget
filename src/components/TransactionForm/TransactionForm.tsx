@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { TransactionFormData, Transaction } from "../../types/transaction";
 import { getISOStringDate } from "../../utils/formatDate";
 
@@ -21,6 +21,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     type: "expense",
   });
 
+  // State for custom dropdown
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [errors, setErrors] = useState<
     Partial<Record<keyof TransactionFormData, string>>
   >({});
@@ -36,6 +40,23 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       });
     }
   }, [initialData]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -54,6 +75,25 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       ...formData,
       [name]: type === "number" ? parseFloat(value) : value,
     });
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (category: string) => {
+    setFormData({ ...formData, category });
+    setIsCategoryDropdownOpen(false);
+
+    // Clear error if it exists
+    if (errors.category) {
+      setErrors({
+        ...errors,
+        category: undefined,
+      });
+    }
+  };
+
+  // Toggle dropdown
+  const toggleCategoryDropdown = () => {
+    setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
   };
 
   const validateForm = (): boolean => {
@@ -156,7 +196,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="card p-6 space-y-6">
+    <form onSubmit={handleSubmit} className="card p-6 space-y-6 relative">
       {/* Transaction Type Radio Group */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -269,7 +309,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         )}
       </div>
 
-      {/* Category */}
+      {/* Category - Custom Dropdown */}
       <div>
         <label
           htmlFor="category"
@@ -277,30 +317,75 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         >
           Category
         </label>
-        <div className="relative">
-          {formData.category && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
-              {getCategoryIcon(formData.category)}
-            </div>
-          )}
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className={`form-select ${formData.category ? "pl-10" : ""} ${
+        <div className="relative" ref={dropdownRef}>
+          <button
+            type="button"
+            onClick={toggleCategoryDropdown}
+            className={`w-full border border-gray-300 rounded-lg bg-white px-4 py-2.5 text-left text-sm flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
               errors.category
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                 : ""
             }`}
           >
-            <option value="">Select a category</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            {formData.category ? (
+              <span className="flex items-center">
+                <span className="mr-2 text-gray-500">
+                  {getCategoryIcon(formData.category)}
+                </span>
+                <span>{formData.category}</span>
+              </span>
+            ) : (
+              <span className="text-gray-400">Select a category</span>
+            )}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-4 w-4 ml-2 text-gray-400 transition-transform duration-200 ${
+                isCategoryDropdownOpen ? "transform rotate-180" : ""
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          {/* Hidden input to store the value */}
+          <input type="hidden" name="category" value={formData.category} />
+
+          {/* Dropdown Menu with improved positioning */}
+          {isCategoryDropdownOpen && (
+            <div
+              className="fixed z-50 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200 py-1 max-h-56 overflow-auto animate-fade-in"
+              style={{
+                width: dropdownRef.current?.offsetWidth + "px",
+                left: dropdownRef.current?.getBoundingClientRect().left + "px",
+                top:
+                  dropdownRef.current?.getBoundingClientRect().bottom +
+                  window.scrollY +
+                  "px",
+              }}
+            >
+              {categories.map((category) => (
+                <div
+                  key={category}
+                  className={`px-4 py-2 text-sm flex items-center cursor-pointer hover:bg-blue-50 ${
+                    formData.category === category
+                      ? "bg-blue-50 text-blue-600"
+                      : ""
+                  }`}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  <span className="mr-2 text-gray-500">
+                    {getCategoryIcon(category)}
+                  </span>
+                  {category}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         {errors.category && (
           <p className="mt-1 text-sm text-red-600">{errors.category}</p>
@@ -349,6 +434,25 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             : `${formData.type === "income" ? "Add Income" : "Add Expense"}`}
         </button>
       </div>
+
+      {/* Animation styles for dropdown */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-fade-in {
+            animation: fadeIn 0.2s ease-out;
+          }
+        `}
+      </style>
     </form>
   );
 };

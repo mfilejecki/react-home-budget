@@ -205,21 +205,24 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
         </div>
       )}
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            max-height: 0;
+      {/* Replace style jsx with regular style tag */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              max-height: 0;
+            }
+            to {
+              opacity: 1;
+              max-height: 500px;
+            }
           }
-          to {
-            opacity: 1;
-            max-height: 500px;
+          .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
           }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

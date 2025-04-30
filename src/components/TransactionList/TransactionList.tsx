@@ -47,7 +47,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
           >
             <path
               fillRule="evenodd"
-              d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l-4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+              d="M5.293 12.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 9.414l-3.293 3.293a1 1 0 01-1.414 0z"
               clipRule="evenodd"
             />
           </svg>
@@ -423,21 +423,23 @@ const TransactionList: React.FC<TransactionListProps> = ({
         )}
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          .animate-fade-in {
+            animation: fadeIn 0.2s ease-out;
           }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.2s ease-out;
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
