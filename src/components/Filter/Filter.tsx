@@ -194,7 +194,7 @@ const Filter: React.FC<FilterProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

@@ -14,7 +14,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
   transaction,
   onEdit,
   onDelete,
-  sortField,
 }) => {
   const { id, title, amount, category, date, type } = transaction;
   const [isExpanded, setIsExpanded] = useState(false);

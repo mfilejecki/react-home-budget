@@ -363,7 +363,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 width: dropdownRef.current?.offsetWidth + "px",
                 left: dropdownRef.current?.getBoundingClientRect().left + "px",
                 top:
-                  dropdownRef.current?.getBoundingClientRect().bottom +
+                  (dropdownRef.current?.getBoundingClientRect().bottom ?? 0) +
                   window.scrollY +
                   "px",
               }}

@@ -100,14 +100,6 @@ const TransactionList: React.FC<TransactionListProps> = ({
     setCurrentPage(page);
   };
 
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newPageSize = Number(e.target.value) as PageSize;
-    setPageSize(newPageSize);
-    // Reset to first page when page size changes
-    setCurrentPage(1);
-    setIsPageSizeDropdownOpen(false);
-  };
-
   const togglePageSizeDropdown = () => {
     setIsPageSizeDropdownOpen(!isPageSizeDropdownOpen);
   };
